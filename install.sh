@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Create project directory
-mkdir -p cumberland-schedule-sync
-cd cumberland-schedule-sync
+mkdir -p schedule-sync
+cd schedule-sync
 
 # Create virtual environment
 python3 -m venv venv
