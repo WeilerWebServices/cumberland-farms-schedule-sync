@@ -1,6 +1,12 @@
-Based on your request, I'll restructure your project to create a Chrome Extension that integrates with Google Calendar. This solution will use Chrome's built-in APIs for authentication and calendar access, eliminating the need for Python and Selenium.
+# Chrome Extension
+
+Create a Chrome Extension that integrates with Google Calendar. This solution will use Chrome's built-in APIs for authentication and calendar access, eliminating the need for Python and Selenium.
+
+---
 
 ### Project Structure for Chrome Extension:
+`Project-Structure.txt`
+
 ```
 cumberland-schedule-sync-extension/
 ├── manifest.json
@@ -14,7 +20,10 @@ cumberland-schedule-sync-extension/
     └── icon128.png
 ```
 
-### 1. `manifest.json` - Core extension configuration
+---
+
+### 1. Core extension configuration
+`manifest.json`
 ```json
 {
   "manifest_version": 3,
@@ -50,7 +59,10 @@ cumberland-schedule-sync-extension/
 }
 ```
 
-### 2. `popup.html` - User interface
+---
+
+### 2. User interface
+`popup.html`
 ```html
 <!DOCTYPE html>
 <html>
@@ -92,7 +104,10 @@ cumberland-schedule-sync-extension/
 </html>
 ```
 
-### 3. `popup.js` - Popup logic
+---
+
+### 3. Popup logic
+`popup.js`
 ```javascript
 document.getElementById('login-btn').addEventListener('click', async () => {
   const username = document.getElementById('username').value;
@@ -162,7 +177,10 @@ function showStatus(text) {
 }
 ```
 
-### 4. `content.js` - Extract schedule from Kronos page
+---
+
+### 4. Extract schedule from Kronos page
+`content.js`
 ```javascript
 function extractSchedule() {
   const schedule = [];
@@ -212,7 +230,10 @@ function extractSchedule() {
 extractSchedule();
 ```
 
-### 5. `background.js` - Core extension logic
+---
+
+### 5. Core extension logic
+`background.js`
 ```javascript
 let kronosCredentials = null;
 let googleAccessToken = null;
@@ -346,6 +367,8 @@ function updateStatus(text) {
 }
 ```
 
+---
+
 ### How to Set Up:
 
 1. **Create Chrome Extension Project**:
@@ -366,6 +389,8 @@ function updateStatus(text) {
    - Enable "Developer mode"
    - Click "Load unpacked" and select your extension directory
 
+---
+
 ### How to Use:
 
 1. Click the extension icon
@@ -373,6 +398,8 @@ function updateStatus(text) {
 3. When prompted, enter your MFA code
 4. Click "Sync to Google Calendar"
 5. Your schedule will be added to Google Calendar
+
+---
 
 ### Key Benefits:
 

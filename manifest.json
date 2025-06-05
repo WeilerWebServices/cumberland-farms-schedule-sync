@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Cumberland Schedule Sync",
+  "version": "1.0",
+  "description": "Sync your Cumberland Farms schedule to Google Calendar",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "identity",
+    "scripting",
+    "storage",
+    "https://cumberlandfarms-sso.prd.mykronos.com/*"
+  ],
+  "host_permissions": [
+    "https://www.googleapis.com/*"
+  ],
+  "oauth2": {
+    "client_id": "YOUR_CLIENT_ID.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/calendar"
+    ]
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

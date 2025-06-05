@@ -1,0 +1,209 @@
+# Testing a Chrome extension in Google Colab
+
+Testing a Chrome extension in Google Colab isn't straightforward since Colab doesn't support browser extensions directly, but we can simulate the key functionality using a headless browser approach. Here's how to test the core logic:
+
+Method 1: Selenium Test Harness in Colab
+python
+# First install dependencies
+!pip install selenium webdriver-manager python-dotenv
+
+# Set up headless Chrome
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+import time
+
+# Configure headless browser
+options = Options()
+options.add_argument("--headless")
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
+
+# Initialize driver
+driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+
+# Test 1: Kronos Login Simulation
+def test_kronos_login():
+    print("🚀 Testing Kronos login flow...")
+    try:
+        driver.get("https://cumberlandfarms-sso.prd.mykronos.com/wfd/ess/myschedule")
+        
+        # Wait for login elements (modify selectors as needed)
+        time.sleep(3)
+        username = driver.find_element("id", "username")
+        password = driver.find_element("id", "password")
+        login_btn = driver.find_element("id", "login-button")
+        
+        # Test credentials (use environment variables in real usage)
+        username.send_keys("test_user")
+        password.send_keys("test_pass")
+        login_btn.click()
+        
+        # Check for MFA page
+        time.sleep(3)
+        mfa_field = driver.find_element("id", "mfaCode")
+        print("✅ Login page test passed - Ready for MFA")
+        return True
+    except Exception as e:
+        print(f"❌ Login test failed: {str(e)}")
+        return False
+
+# Test 2: Schedule Parsing
+def test_schedule_parsing():
+    print("\n🔍 Testing schedule parsing...")
+    try:
+        # Load a test page (replace with actual Kronos schedule HTML)
+        driver.get("data:text/html;charset=utf-8," + """
+        <html>
+            <table class="schedule-table">
+                <tbody>
+                    <tr><td class="date-column">Mon 06/05/23</td><td class="shift-column">9:00 AM - 5:00 PM</td></tr>
+                    <tr><td class="date-column">Tue 06/06/23</td><td class="shift-column">OFF</td></tr>
+                </tbody>
+            </table>
+        </html>""")
+        
+        # Extract schedule
+        schedule = []
+        rows = driver.find_elements("css selector", ".schedule-table tbody tr")
+        for row in rows:
+            date = row.find_element("css selector", "td.date-column").text
+            shift = row.find_element("css selector", "td.shift-column").text
+            if "OFF" not in shift and shift:
+                start, end = shift.split(" - ")
+                schedule.append({"date": date, "start": start, "end": end})
+        
+        print(f"📅 Parsed schedule: {schedule}")
+        print("✅ Schedule parsing test passed")
+        return True
+    except Exception as e:
+        print(f"❌ Parsing test failed: {str(e)}")
+        return False
+
+# Test 3: Google Calendar API (Mock)
+def test_calendar_api():
+    print("\n📅 Testing Google Calendar integration...")
+    try:
+        # This would be replaced with real API calls
+        mock_event = {
+            "summary": "TEST Work Shift",
+            "start": {"dateTime": "2023-06-05T09:00:00", "timeZone": "America/New_York"},
+            "end": {"dateTime": "2023-06-05T17:00:00", "timeZone": "America/New_York"}
+        }
+        print(f"🎯 Would create event: {mock_event}")
+        print("✅ Calendar API test passed (mock)")
+        return True
+    except Exception as e:
+        print(f"❌ Calendar test failed: {str(e)}")
+        return False
+
+# Run all tests
+if test_kronos_login() and test_schedule_parsing() and test_calendar_api():
+    print("\n🎉 All tests passed!")
+else:
+    print("\n⚠️ Some tests failed - check output above")
+
+driver.quit()
+Method 2: Core Function Unit Tests
+python
+# Test just the parsing logic without browser
+def parse_schedule_html(html):
+    from bs4 import BeautifulSoup
+    soup = BeautifulSoup(html, 'html.parser')
+    schedule = []
+    
+    for row in soup.select('.schedule-table tbody tr'):
+        date = row.select_one('td.date-column').get_text(strip=True)
+        shift = row.select_one('td.shift-column').get_text(strip=True)
+        
+        if "OFF" not in shift and shift:
+            start, end = shift.split(" - ")
+            schedule.append({
+                "date": date,
+                "start": start.strip(),
+                "end": end.strip()
+            })
+    return schedule
+
+# Test cases
+test_html = """
+<table class="schedule-table">
+    <tbody>
+        <tr><td class="date-column">Mon 06/05/23</td><td class="shift-column">9:00 AM - 5:00 PM</td></tr>
+        <tr><td class="date-column">Tue 06/06/23</td><td class="shift-column">OFF</td></tr>
+    </tbody>
+</table>
+"""
+
+print("🧪 Testing parser with sample HTML:")
+print(parse_schedule_html(test_html))
+Method 3: API Response Testing
+python
+# Test Google Calendar API responses
+import requests
+from datetime import datetime, timedelta
+
+def test_calendar_api():
+    # Mock API endpoint (replace with real in production)
+    MOCK_API = "https://jsonplaceholder.typicode.com/posts"
+    
+    test_event = {
+        "title": "TEST Work Shift",
+        "start": (datetime.now() + timedelta(days=1)).isoformat(),
+        "end": (datetime.now() + timedelta(days=1, hours=8)).isoformat()
+    }
+    
+    response = requests.post(MOCK_API, json=test_event)
+    print(f"🔄 Mock API Response: {response.status_code}")
+    print(f"📤 Sent: {test_event}")
+    print(f"📥 Received: {response.json()}")
+
+test_calendar_api()
+Important Notes:
+For Real Testing:
+
+python
+# Store credentials securely
+from google.colab import userdata
+USERNAME = userdata.get('KRONOS_USERNAME')  # Set in Colab secrets
+PASSWORD = userdata.get('KRONOS_PASSWORD')
+Chrome Extension Specifics:
+
+The actual extension would need proper Chrome APIs
+
+Test the compiled extension in Chrome by:
+
+python
+# Package your extension
+!zip -r extension.zip manifest.json *.js *.html icons/
+
+# Download for local testing
+from google.colab import files
+files.download('extension.zip')
+Alternative Testing Flow:
+
+python
+# Test the full workflow with mocks
+def test_full_workflow():
+    # 1. Login
+    login_success = True  # Mock
+    # 2. Get schedule HTML (mock)
+    schedule = parse_schedule_html(test_html)
+    # 3. Create calendar events
+    for shift in schedule:
+        print(f"Would create event for {shift['date']}")
+    return len(schedule) > 0
+
+if test_full_workflow():
+    print("✅ End-to-end test passed")
+For actual deployment, you would:
+
+Test core logic in Colab (as shown above)
+
+Package the Chrome extension
+
+Load it in Chrome via chrome://extensions
+
+Test with real credentials in a controlled environment
+
+Would you like me to focus on any particular aspect of the testing process?

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cumberland Schedule Sync</title>
+  <style>
+    body { width: 300px; padding: 15px; font-family: Arial, sans-serif; }
+    input, button { width: 100%; padding: 8px; margin: 5px 0; }
+    #status { margin-top: 10px; color: #555; }
+  </style>
+</head>
+<body>
+  <h2>Cumberland Schedule Sync</h2>
+  
+  <div id="login-section">
+    <label for="username">Kronos Username:</label>
+    <input type="text" id="username" placeholder="Your username">
+    
+    <label for="password">Kronos Password:</label>
+    <input type="password" id="password" placeholder="Your password">
+    
+    <button id="login-btn">Login to Kronos</button>
+  </div>
+  
+  <div id="mfa-section" style="display:none;">
+    <label for="mfa-code">Enter MFA Code:</label>
+    <input type="text" id="mfa-code" placeholder="From SMS">
+    <button id="mfa-btn">Submit MFA</button>
+  </div>
+  
+  <div id="sync-section" style="display:none;">
+    <button id="sync-btn">Sync to Google Calendar</button>
+  </div>
+  
+  <div id="status"></div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
